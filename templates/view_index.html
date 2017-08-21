@@ -5,6 +5,10 @@
     <div id="loading" class="am-text-center am-text-middle am-text-primary am-text-xl am-padding-xl">
         <i class="am-icon-spinner am-icon-pulse"></i> 加载中...
     </div>
+    <div id="no-more-thing" class="am-kai am-text-center am-text-middle am-text-warning am-padding-top-xl">
+        <p> ------------ ^_^ 这是我的底线 ^_^ ------------ </p>
+        <p>No more thing.</p>
+    </div>
     <div class="am-modal am-modal-alert" tabindex="-1" id="error-alert">
         <div class="am-modal-dialog">
             <div class="am-modal-hd">请先输入本文查看密码</div>
@@ -59,7 +63,7 @@
                 $('#loading').css('display', 'none');
                 $('.monitor').removeClass('monitor');
                 if (data.nomore) {
-                    no_more_thing();
+                    $('#no-more-thing').css('display', 'block');
                 } else {
                     var is_monitor = true;
                     for (blog in data) {
@@ -192,11 +196,6 @@
                 $('#error-alert .am-modal-hd').html('请先输入本文查看密码');
                 $('#error-alert').modal();
             }
-        }
-
-        function no_more_thing() {
-            var no_more_thing_str = '<div id="no-more" class="am-kai am-text-center am-text-middle am-text-warning am-padding-top-xl"><p>------------ ^_^ 这是我的底线 ^_^ ------------</p><p>No more thing.</p></div>';
-            $('#loading').after(no_more_thing_str);
         }
     </script>
 {% endblock %}

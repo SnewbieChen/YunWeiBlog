@@ -304,6 +304,10 @@ body {
     display: none;
 }
 
+#no-more-thing {
+    display: none;
+}
+
 @media (min-width: 901px) {
     .post-container::after {
         content: '';
