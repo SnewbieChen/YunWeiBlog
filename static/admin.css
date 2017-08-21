@@ -1,0 +1,100 @@
+/**
+ * admin.css
+ */
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    font-size: 1.4em;
+}
+
+::-webkit-scrollbar-track-piece {
+    background: #eee
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 6px
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: #CBCBCB
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #bbb
+}
+
+.main {
+    position: relative;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.admin-gravatar {
+    height: 238px;
+    margin: 12px 0px;
+    border-right: 1px dashed #ccc;
+
+}
+
+.admin-gravatar-img {
+    margin: 69px 0px;
+}
+
+.post-article {
+    color: #669966;
+}
+
+.post-code {
+    color: #669999;
+}
+
+.post-photo {
+    color: #75ce66;
+}
+
+.post-album {
+    color: #CCCC33;
+}
+
+.post-music {
+    color: #669933;
+}
+
+.post-video {
+    color: #c03b44;
+}
+
+.post-public {
+    color: #0e90d2;
+}
+
+.post-private {
+    color: #F37B1D;
+}
+
+.post-encrypt {
+    color: #dd514c;
+}
+
+.blog-list-tag {
+    margin: 0 3px;
+}
+
+.comment-radius {
+    border-radius: 5px !important;
+}
+
+.comment-textarea {
+    min-width: 100%;
+    border-radius: 5px;
+}

@@ -1,0 +1,99 @@
+{% extends "admin_base.html" %}
+{% block title %}草稿箱列表{% endblock %}
+{% block style %}
+{% endblock %}
+{% block content %}
+    <div class="am-scrollable-horizontal">
+        <table class="am-table am-table-bordered am-table-radius am-table-striped am-table-hover am-table-centered">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>文章标题</th>
+                <th>发布时间</th>
+                <th>文章类型</th>
+                <th>查看类型</th>
+                <th>评论</th>
+                <th>标签</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for post in blog_list %}
+                <tr>
+                    <td class="am-text-middle list-num">{{ loop.index }}</td>
+                    <td class="am-text-middle"><a href="/post/{{ post.id }}" target="_blank">{{ post.title }}</a></td>
+                    <td class="am-text-middle">{{ post.post_time }}</td>
+                    <td class="am-text-middle">
+                        {% if post.post_type == 'article' %}
+                            <span class="am-icon-book post-article"> 文章</span>
+                        {% elif post.post_type == 'code' %}
+                            <span class="am-icon-code post-code"> 代码</span>
+                        {% elif post.post_type == 'photo' %}
+                            <span class="am-icon-camera post-photo"> 图片</span>
+                        {% elif post.post_type == 'album' %}
+                            <span class="am-icon-photo post-album"> 图集</span>
+                        {% elif post.post_type == 'music' %}
+                            <span class="am-icon-music post-music"> 音乐</span>
+                        {% elif post.post_type == 'video' %}
+                            <span class="am-icon-video-camera post-video"> 视频</span>
+                        {% endif %}
+                    </td>
+                    <td class="am-text-middle">
+                        {% if post.view_type == 'public' %}
+                            <span class="am-icon-users post-public"> 公开</span>
+                        {% elif post.view_type == 'private' %}
+                            <span class="am-icon-user post-private"> 私有</span>
+                        {% elif post.view_type == 'encrypt' %}
+                            <span class="am-icon-lock post-encrypt"> 加密</span>
+                        {% endif %}
+                    </td>
+                    <td class="am-text-middle">{{ post.comments|length }}</td>
+                    <td class="am-text-middle">
+                        {% for tag in post.tags %}
+                            <a class="blog-list-tag" href="/tag/{{ tag.name }}" target="_blank">{{ tag.name }}</a>
+                        {% endfor %}
+
+                    </td>
+                    <td class="am-text-middle">
+                        <div class="am-btn-toolbar am-inline-block">
+                            <div class="am-btn-group am-btn-group-xs">
+                                <a class="am-btn am-btn-primary am-btn-xs" href="/manage/edit/{{ post.edit_id }}">
+                                    <span class="am-icon-pencil-square-o"> 编辑</span>
+                                </a>
+                                <a class="am-btn am-btn-danger am-btn-xs"
+                                   onclick="delete_blog($(this),'{{ post.edit_id }}')">
+                                    <span class="am-icon-trash-o"> 删除</span>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="8">暂无草稿</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+{% block bodyjs %}
+    <script>
+        function delete_blog(e, edit_id) {
+            var list_num = e.parents('tr').children(".list-num").text();
+            var the_tr = e.parents('tr');
+            if (confirm("确定要删除序号为 " + list_num + " 的这篇博客草稿吗？")) {
+                $.ajax({
+                    method: "POST",
+                    url: "/manage/draft",
+                    data: {edit_id: edit_id}
+                }).done(function (data) {
+                    if (data == 'ok') {
+                        the_tr.remove();
+                    } else if (data == 'error') {
+                        alert('删除出错，请检查网站后台错误。');
+                    }
+                });
+
+            }
+        }
+    </script>
+{% endblock %}

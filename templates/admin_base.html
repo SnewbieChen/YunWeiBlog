@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="no-js">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %} - YunWei Space</title>
+
+    <!-- Set render engine for 360 browser -->
+    <meta name="renderer" content="webkit">
+
+    <!-- No Baidu Siteapp-->
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="/static/app-icon72x72@2x.png">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0,minimal-ui">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="YunWei Console"/>
+    <link rel="apple-touch-icon-precomposed" href="/static/app-icon72x72@2x.png">
+
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="/static/app-icon72x72@2x.png">
+    <meta name="msapplication-TileColor" content="#0e90d2">
+
+    <link href="https://cdn.staticfile.org/amazeui/2.7.2/css/amazeui.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/mediaelement/4.2.3/mediaelementplayer.min.css" rel="stylesheet">
+    <link href="/static/admin.css" rel="stylesheet">
+    {% block style %}
+    {% endblock %}
+</head>
+<body>
+<header class="am-topbar am-topbar-inverse">
+    <div class="am-topbar-brand">
+        <strong>YunWei.Space</strong>
+    </div>
+
+    <button class="am-topbar-btn am-topbar-toggle am-btn am-btn-sm am-btn-success am-show-sm-only"
+            data-am-collapse="{target: '#topbar-collapse'}"><span class="am-sr-only">导航切换</span> <span
+            class="am-icon-bars"></span></button>
+
+    <div class="am-collapse am-topbar-collapse" id="topbar-collapse">
+        <ul class="am-nav am-nav-pills am-topbar-nav">
+            <li {% if page_in == 'blog' %}class="am-active"{% endif %}>
+                <a href="/manage/blog"><span class="am-icon-home"></span> 博文列表 </a>
+            </li>
+            <li {% if page_in == 'edit' %}class="am-active"{% endif %}>
+                <a href="/manage/edit/new"><span class="am-icon-edit"></span> 发布文章 </a>
+            </li>
+            <li {% if page_in == 'draft' %}class="am-active"{% endif %}>
+                <a href="/manage/draft"><span class="am-icon-inbox"></span> 草稿箱
+                    {% if get_info('draft') %}
+                        <span class="am-badge am-badge-warning">{{ get_info('draft') }}</span>
+                    {% endif %}
+            </li>
+            <li {% if page_in == 'tag' %}class="am-active"{% endif %}>
+                <a href="/manage/tag"><span class="am-icon-tags"></span> 标签管理 </a>
+            </li>
+            <li {% if page_in == 'comment' %}class="am-active"{% endif %}>
+                <a href="/manage/comment"><span class="am-icon-comments"></span> 评论管理
+                    {% if get_info('comment') %}
+                        <span class="am-badge am-badge-warning">{{ get_info('comment') }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li {% if page_in == 'message' %}class="am-active"{% endif %}>
+                <a href="/manage/message"><span class="am-icon-envelope-o"></span> 留言管理
+                    {% if get_info('message') %}
+                        <span class="am-badge am-badge-warning">{{ get_info('message') }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <!--<li class="am-active"><a href="/manage/file"><span class="am-icon-folder"></span> 文件管理 </a></li>-->
+        </ul>
+        <div class="am-topbar-right am-show-lg-up">
+            <ul class="am-nav am-nav-pills am-topbar-nav">
+                <li class="am-dropdown" data-am-dropdown>
+                    <a class="am-dropdown-toggle" data-am-dropdown-toggle href="javascript:;">
+                        <span class="am-icon-users"></span> 管理员（{{ get_info('name') }}） <span
+                            class="am-icon-caret-down"></span>
+                    </a>
+                    <ul class="am-dropdown-content">
+                        <li><a href="#" data-am-modal="{target: '#admin-profile', closeViaDimmer: 0}">
+                            <span class="am-icon-cog"></span> 设置</a>
+                        </li>
+                        <li><a href="/logout"><span class="am-icon-power-off"></span> 退出</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>
+<div class="am-modal am-modal-no-btn" tabindex="-1" id="admin-profile">
+    <div class="am-modal-dialog comment-radius">
+        <div class="am-modal-hd">
+            <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+        </div>
+        <div class="am-modal-bd">
+            <div class="am-g">
+                <div class="am-u-sm-3 admin-gravatar">
+                    <img class="am-img-thumbnail am-circle admin-gravatar-img"
+                         src="https://cn.gravatar.com/avatar"
+                         width="100" height="100"/>
+                </div>
+                <div class="am-u-sm-8 am-u-end">
+                    <div class="am-input-group am-margin-vertical-sm">
+                        <span class="am-input-group-label"><i class="am-icon-user-secret am-icon-fw"></i></span>
+                        <input id="input-admin-name" type="text" class="am-form-field" placeholder="登录用户名（必填）"
+                               data-am-popover="{content: '用于登录的用户名', trigger: 'hover focus'}">
+                    </div>
+                    <div class="am-input-group am-margin-vertical-sm">
+                        <span class="am-input-group-label"><i class="am-icon-user am-icon-fw"></i></span>
+                        <input id="input-admin-nickname" type="text" class="am-form-field" placeholder="昵称（必填）"
+                               data-am-popover="{content: '用于显示的用户昵称', trigger: 'hover focus'}">
+                    </div>
+                    <div class="am-input-group am-margin-vertical-sm">
+                        <span class="am-input-group-label"><i class="am-icon-envelope am-icon-fw"></i></span>
+                        <input id="input-admin-email" type="email" class="am-form-field" placeholder="邮箱（必填）"
+                               data-am-popover="{content: '用于显示Gravatar头像图片', trigger: 'hover focus'}">
+                    </div>
+                    <div class="am-input-group am-margin-vertical-sm">
+                        <span class="am-input-group-label"><i class="am-icon-lock am-icon-fw"></i></span>
+                        <input id="input-admin-old-pwd" type="password" class="am-form-field" placeholder="旧密码"
+                               data-am-popover="{content: '如果需要修改密码请输入，否则请留空', trigger: 'hover focus'}">
+                    </div>
+                    <div class="am-input-group am-margin-vertical-sm">
+                        <span class="am-input-group-label"><i class="am-icon-unlock-alt am-icon-fw"></i></span>
+                        <input id="input-admin-new-pwd" type="password" class="am-form-field" placeholder="新密码"
+                               data-am-popover="{content: '如果需要修改密码请输入，否则请留空', trigger: 'hover focus'}">
+                    </div>
+                </div>
+            </div>
+            <div class="am-g am-padding-sm">
+                <button type="button" id="cancel-set"
+                        class="am-btn am-btn-danger am-btn-xs am-radius am-margin-horizontal">取消
+                </button>
+                <button type="button" id="do-set"
+                        data-am-popover="{content: '修改成功后将需要重新登录', trigger: 'hover focus'}"
+                        class="am-btn am-btn-success am-btn-xs am-radius am-margin-horizontal">确定
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="am-cf am-show-lg-up main">
+    <!-- content start -->
+    {% block content %}{% endblock %}
+    <!-- content end -->
+</div>
+<div class="am-cf am-show-lg-down am-hide-lg-up main am-padding am-text-center am-text-xl am-text-warning am-padding-vertical-xl">
+    请在分辨率宽度大于1024像素的PC屏幕上进行后台管理以获得最佳排版效果。
+</div>
+
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script src="https://cdn.staticfile.org/jquery/2.2.4/jquery.min.js"></script>
+<!--<![endif]-->
+<!--[if lte IE 8 ]>
+<script src="https://cdn.staticfile.org/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/modernizr/2.8.3/modernizr.min.js"></script>
+<script src="https://cdn.staticfile.org/amazeui/2.7.2/js/amazeui.ie8polyfill.min.js"></script>
+<![endif]-->
+<script src="https://cdn.staticfile.org/amazeui/2.7.2/js/amazeui.min.js"></script>
+<script src="https://cdn.bootcss.com/mediaelement/4.2.3/mediaelement-and-player.min.js"></script>
+<script src="https://cdn.bootcss.com/mediaelement/4.2.3/lang/zh-cn.min.js"></script>
+<script>
+    mejs.i18n.language('zh-CN');
+
+    $('#admin-profile').on('open.modal.amui', function () {
+        $('#input-admin-old-pwd').val('');
+        $('#input-admin-new-pwd').val('');
+        $.ajax({
+            method: "POST",
+            url: "/manage/admin",
+            data: {event: 'get'}
+        }).done(function (data) {
+            get_result = eval('(' + data + ')');
+            if (get_result.event == 'ok') {
+                $('#input-admin-name').val(get_result.admin_name);
+                $('#input-admin-nickname').val(get_result.admin_nickname);
+                $('#input-admin-email').val(get_result.admin_email);
+                $('.admin-gravatar-img').attr('src', 'https://cn.gravatar.com/avatar/' + get_result.admin_gravatar)
+            } else if (get_result.event == 'error') {
+                alert('出错了！请检查网站后台错误。');
+            }
+        });
+    });
+
+    $('#cancel-set').click(function () {
+        $('#admin-profile').modal('close');
+    });
+
+    $('#do-set').click(function () {
+        var admin_name = $("#input-admin-name").val().trim();
+        var admin_nickname = $("#input-admin-nickname").val().trim();
+        var admin_email = $("#input-admin-email").val().trim();
+        var old_pwd = $("#input-admin-old-pwd").val().trim();
+        var new_pwd = $("#input-admin-new-pwd").val().trim();
+        if (admin_name && admin_nickname && admin_email) {
+            $('#admin-profile').modal('close');
+            var sendData = {};
+            sendData.event = 'set';
+            sendData.admin_name = admin_name;
+            sendData.admin_nickname = admin_nickname;
+            sendData.admin_email = admin_email;
+            if (old_pwd && new_pwd) {
+                sendData.old_pwd = old_pwd;
+                sendData.new_pwd = new_pwd;
+            }
+            $.ajax({
+                method: "POST",
+                url: "/manage/admin",
+                data: sendData
+            }).done(function (data) {
+                set_result = eval('(' + data + ')');
+                if (set_result.event == 'ok') {
+                    $.ajax({
+                        method: "GET",
+                        url: "/logout"
+                    });
+                    alert('修改成功！将跳转到登录页面重新登录...');
+                    window.location.href = '/login';
+                } else if (set_result.event == 'pwderror') {
+                    alert('修改失败，原密码错误！');
+                }
+                else if (set_result.event == 'error') {
+                    alert('出错了！请检查网站后台错误。');
+                }
+            });
+        } else {
+            alert('还有必填项未填入实际内容！');
+        }
+    });
+</script>
+{% block bodyjs %}
+{% endblock %}
+</body>
+</html>

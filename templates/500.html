@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="no-js">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>500 Internal Server Error . YunWei</title>
+
+    <!-- Set render engine for 360 browser -->
+    <meta name="renderer" content="webkit">
+
+    <!-- No Baidu Siteapp-->
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="/static/app-icon72x72@2x.png">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0,minimal-ui">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="YunWei"/>
+    <link rel="apple-touch-icon-precomposed" href="/static/app-icon72x72@2x.png">
+
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="/static/app-icon72x72@2x.png">
+    <meta name="msapplication-TileColor" content="#0e90d2">
+
+    <style>
+        html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, small, strong {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body p, h1, h2, h3, h4, h5, h6 {
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        body {
+            background: #CC9999;
+            text-align: center;
+        }
+
+        .main {
+            position: relative;
+            width: 100%;
+            height: auto;
+            min-height: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .err-bd {
+            position: relative;
+            height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        .err-main {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 450px;
+            margin: auto;
+            background: #CC9966;
+            width: 53%;
+            border-radius: 10px;
+            -webkit-box-shadow: -2px 11px 32px -13px rgba(0, 0, 0, 0.45);
+            -moz-box-shadow: -2px 11px 32px -13px rgba(0, 0, 0, 0.45);
+            box-shadow: -2px 11px 32px -13px rgba(0, 0, 0, 0.45);
+        }
+
+        .agile-info {
+            padding: 30px 0px;
+        }
+
+        .agile-info h2 {
+            font-size: 12em;
+            color: black;
+            line-height: 1;
+            font-weight: 100;
+            letter-spacing: 20px;
+            text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .agile-info h3 {
+            font-size: 38px;
+            text-transform: uppercase;
+            color: white;
+            line-height: 1.5;
+            font-weight: 100;
+            letter-spacing: 2px;
+            margin-top: 12px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .agile-info p {
+            font-size: 18px;
+            color: rgba(0, 0, 0, 0.72);
+            text-transform: capitalize;
+            letter-spacing: 6px;
+            margin: 20px auto;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+        }
+
+        .agile-info a {
+            font-size: 15px;
+            text-transform: uppercase;
+            color: white;
+            border: 1px solid #3b5998;
+            padding: 10px 40px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-top: 8px;
+            background: #3b5998;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .agile-info a:hover {
+            background: #1f3c7b;
+            transition: 0.5s all;
+            -webkit-transition: 0.5s all;
+            -o-transition: 0.5s all;
+            -moz-transition: 0.5s all;
+            -ms-transition: 0.5s all;
+        }
+
+        @media (max-width: 1440px) {
+            .err-main {
+                width: 55%;
+            }
+        }
+
+        @media (max-width: 1366px) {
+            .err-main {
+                width: 58%;
+            }
+
+        }
+
+        @media (max-width: 1280px) {
+            .err-main {
+                width: 64%;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .err-main {
+                width: 76%;
+            }
+
+        }
+
+        @media (max-width: 991px) {
+            .err-main {
+                width: 76%;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .err-main {
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .err-main {
+                width: 91%;
+            }
+        }
+
+        @media (max-width: 736px) {
+            .err-main {
+                width: 94%;
+            }
+        }
+
+        @media (max-width: 667px) {
+            .agile-info h2 {
+                font-size: 11em;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .agile-info h2 {
+                font-size: 10em;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .agile-info h2 {
+                font-size: 9em;
+            }
+
+            .agile-info h3 {
+                font-size: 28px;
+            }
+
+            .agile-info p {
+                font-size: 17px;
+            }
+
+            .agile-info a {
+                margin-top: 0px;
+            }
+        }
+
+        @media (max-width: 414px) {
+
+            .agile-info h2 {
+                font-size: 8em;
+            }
+        }
+
+        @media (max-width: 384px) {
+            .agile-info h2 {
+                font-size: 7em;
+                letter-spacing: 13px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .agile-info h2 {
+                font-size: 6em;
+                letter-spacing: 12px;
+            }
+
+            .agile-info {
+                padding: 20px 0px;
+            }
+
+            .agile-info h3 {
+                font-size: 26px;
+            }
+
+            .agile-info p {
+                font-size: 16px;
+                letter-spacing: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="main">
+    <div class="err-bd">
+        <div class="err-main">
+            <div class="agile-info">
+                <h2>500</h2>
+                <h3>出错了!</h3>
+                <p>Sorry, 服务器似乎在闹脾气</p>
+                <a href="/">返回首页</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

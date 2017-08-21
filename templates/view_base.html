@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="no-js">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %} - YunWei Space</title>
+
+    <!-- Set render engine for 360 browser -->
+    <meta name="renderer" content="webkit">
+
+    <!-- No Baidu Siteapp-->
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="/static/app-icon72x72@2x.png">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0,minimal-ui">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="YunWei"/>
+    <link rel="apple-touch-icon-precomposed" href="/static/app-icon72x72@2x.png">
+
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="/static/app-icon72x72@2x.png">
+    <meta name="msapplication-TileColor" content="#0e90d2">
+
+    <link href="https://cdn.staticfile.org/amazeui/2.7.2/css/amazeui.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/mediaelement/4.2.3/mediaelementplayer.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/froala-editor/2.6.4/css/froala_style.min.css" rel="stylesheet">
+    <link href="/static/main.css" rel="stylesheet">
+    {% block style %}
+    {% endblock %}
+</head>
+<body>
+<div class="am-cf main">
+    <!-- sidebar start -->
+    <div class="menu-sidebar ms-hide">
+        <div class="am-offcanvas-bar menu-bar">
+            <div class="am-padding-top-xl">
+                <img class="am-img-thumbnail am-circle am-center logo" src="/static/logo.jpg" width="128"
+                     height="128"/>
+            </div>
+            <div class="am-padding-xl">
+                <a href="/" class="am-btn am-round am-btn-sm am-center am-margin-vertical menu-item"> 主页 </a>
+                <a href="/view" class="am-btn am-round am-btn-sm am-center am-margin-vertical menu-item"> 归档 </a>
+                <a href="/message" class="am-btn am-round am-btn-sm am-center am-margin-vertical menu-item"> 留言 </a>
+                <a href="/about" class="am-btn am-round am-btn-sm am-center am-margin-vertical menu-item"> 关于 </a>
+            </div>
+            <div class="am-padding-lg">
+                <a href="https://github.com/snewbiechen" class="am-icon-btn am-icon-github link-icon-btn"
+                   title="GitHub" target="_blank"></a>
+                <a href="https://weibo.com/yikafan" class="am-icon-btn am-icon-weibo link-icon-btn" title="微博"
+                   target="_blank"></a>
+                <a href="https://www.instagram.com/snewbie.chen" class="am-icon-btn am-icon-instagram link-icon-btn"
+                   title="Instagram" target="_blank"></a>
+                <a href="mailto:chen@yunwei.space" class="am-icon-btn am-icon-envelope link-icon-btn"
+                   title="Email"></a>
+            </div>
+        </div>
+    </div>
+    <header data-am-widget="header"
+            class="am-header am-header-default am-header-fixed ms-show">
+        <div class="am-header-left am-header-nav">
+            <a href="/">
+                <img class="logo-sm" src="/static/logo.jpg"/>
+            </a>
+        </div>
+        <div data-am-widget="gotop">
+            <h1 class="am-header-title">
+                <a href="#top" class="">丛凉</a>
+            </h1>
+        </div>
+        <div class="am-header-right am-header-nav">
+            <a href="#mini-sidebar" class="" data-am-offcanvas>
+                <i class="am-header-icon am-icon-bars"></i>
+            </a>
+        </div>
+        <div class="am-offcanvas mini-offcanvas" id="mini-sidebar">
+            <div class="am-offcanvas-bar mini-offcanvas-bar">
+                <ul class="am-nav mini-nav">
+                    <li><a href="/">主页</a></li>
+                    <li><a href="/view">归档</a></li>
+                    <li><a href="/message">留言</a></li>
+                    <li><a href="/about">关于</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    <!-- sidebar end -->
+
+    <!-- content start -->
+    <div class="am-padding-xl main-content">
+        {% block content %}{% endblock %}
+    </div>
+    <!-- content end -->
+</div>
+
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script src="https://cdn.staticfile.org/jquery/2.2.4/jquery.min.js"></script>
+<!--<![endif]-->
+<!--[if lte IE 8 ]>
+<script src="https://cdn.staticfile.org/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/modernizr/2.8.3/modernizr.min.js"></script>
+<script src="https://cdn.staticfile.org/amazeui/2.7.2/js/amazeui.ie8polyfill.min.js"></script>
+<![endif]-->
+<script src="https://cdn.staticfile.org/amazeui/2.7.2/js/amazeui.min.js"></script>
+<script src="https://cdn.bootcss.com/mediaelement/4.2.3/mediaelement-and-player.min.js"></script>
+<script src="https://cdn.bootcss.com/mediaelement/4.2.3/lang/zh-cn.min.js"></script>
+<script>
+    mejs.i18n.language('zh-CN'); // Setting German language
+</script>
+{% block bodyjs %}
+{% endblock %}
+</body>
+</html>

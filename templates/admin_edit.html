@@ -1,0 +1,637 @@
+{% extends "admin_base.html" %}
+{% block title %}
+    {% if edit_id %}
+        编辑文章
+    {% else %}
+        发布新博文
+    {% endif %}
+{% endblock %}
+{% block style %}
+    <link href="/static/datetimepicker/amazeui.datetimepicker-se.min.css" rel="stylesheet">
+    <link href="/static/tagsinput/amazeui.tagsinput.css" rel="stylesheet">
+
+    <!-- Include external CSS. -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/codemirror/5.28.0/codemirror.min.css" rel="stylesheet">
+
+    <!-- Include Editor style. -->
+    <link href="https://cdn.bootcss.com/froala-editor/2.6.4/css/froala_editor.pkgd.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/froala-editor/2.6.4/css/froala_style.min.css" rel="stylesheet">
+    <style>
+        .am-tagsinput {
+            margin-bottom: 0;
+            min-width: 100%;
+            border-color: #0e90d2;
+        }
+
+        .tt-dataset {
+            width: 220px;
+            border: 1px solid #ccc;
+            padding: 5px 0;
+            margin-top: 5px;
+            background-color: #fff;
+            box-shadow: 0 0 4px -1px #2e383c;
+        }
+
+        .tt-suggestion {
+            padding: 7px 20px;
+        }
+
+        .tt-suggestion:hover {
+            background-color: #0e90d2;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="am-panel-group" id="post-accordion">
+        <div class="am-panel am-panel-default">
+            <div class="am-panel-hd">
+                <h4 class="am-panel-title" data-am-collapse="{parent:'#post-accordion',target:'#post-setting'}">
+                    博文相关设置（点击隐藏/显示） <i class="am-icon-chevron-down"></i></h4>
+            </div>
+            <div id="post-setting" class="am-panel-collapse am-collapse am-in">
+                <div class="am-panel-bd">
+                    <div class="am-g am-margin">
+                        <div class="am-u-md-2 am-text-right am-text-middle" style="line-height: 32px;">文章类型:</div>
+                        <div class="am-btn-group am-u-md-8 am-u-end" data-am-button>
+                            <label class="am-btn am-btn-primary am-btn-sm am-radius">
+                                <input type="radio" name="posttypes" id="post-type1" value="article" checked> 文章
+                            </label>
+                            <label class="am-btn am-btn-primary am-btn-sm">
+                                <input type="radio" name="posttypes" id="post-type2" value="code"> 代码
+                            </label>
+                            <label class="am-btn am-btn-primary am-btn-sm">
+                                <input type="radio" name="posttypes" id="post-type3" value="photo"> 照片
+                            </label>
+                            <label class="am-btn am-btn-primary am-btn-sm">
+                                <input type="radio" name="posttypes" id="post-type4" value="album"> 图集
+                            </label>
+                            <label class="am-btn am-btn-primary am-btn-sm">
+                                <input type="radio" name="posttypes" id="post-type5" value="music"> 音乐
+                            </label>
+                            <label class="am-btn am-btn-primary am-btn-sm">
+                                <input type="radio" name="posttypes" id="post-type6" value="video"> 视频
+                            </label>
+                        </div>
+                    </div>
+                    <div class="am-g am-margin">
+                        <div class="am-u-md-2 am-text-right am-text-middle" style="line-height: 33px;">头部数据:</div>
+                        <div class="am-btn-group am-u-md-6 am-u-end">
+                            <a class="am-btn am-btn-primary am-btn-sm am-radius"
+                               data-am-modal="{target:'#meta-set'}">设置</a>
+                            <span id="meta-set-info" class="am-padding-left am-text-center am-text-middle"
+                                  style="line-height: 32px;">
+                                当前无设置
+                            </span>
+                        </div>
+                    </div>
+                    <div class="am-g am-margin">
+                        <div class="am-u-md-2 am-text-right am-text-middle" style="line-height: 33px;">查看类型:</div>
+                        <div class="am-btn-group am-u-md-6 am-u-end" data-am-button>
+                            <label class="am-btn am-btn-primary am-btn-sm am-radius">
+                                <input type="radio" name="viewtypes" id="view-type1" value="public" checked> 公开
+                            </label>
+                            <label class="am-btn am-btn-primary am-btn-sm">
+                                <input type="radio" name="viewtypes" id="view-type2" value="private"> 仅自己可看
+                            </label>
+                            <label class="am-btn am-btn-primary am-btn-sm">
+                                <input type="radio" name="viewtypes" id="view-type3" value="encrypt"> 密码查看
+                            </label>
+                            <div id="view-pwd-input"
+                                 class="am-input-group am-input-group-primary am-input-group-sm am-padding-left-xl"
+                                 style="display: none">
+                                <span class="am-input-group-label"><i class="am-icon-lock am-icon-fw"></i></span>
+                                <input id="view-pwd" type="text" class="am-form-field" placeholder="设置查看密码">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="am-g am-margin">
+                        <div class="am-u-md-2 am-text-right am-text-middle" style="line-height: 38px;">发布时间:</div>
+                        <div class="am-input-group am-input-group-primary am-u-md-4 am-u-end">
+                            <span class="am-input-group-label"><i class="am-icon-clock-o am-icon-fw"></i></span>
+                            <input value="" class="am-form-field" id='post-datetime-picker' placeholder="留空默认为当前时间">
+                        </div>
+                    </div>
+                    <div class="am-g am-margin">
+                        <div class="am-u-md-2 am-text-right am-text-middle" style="line-height: 38px;">文章标题:</div>
+                        <div class="am-input-group am-input-group-primary am-u-md-8 am-u-end">
+                            <span class="am-input-group-label"><i class="am-icon-edit am-icon-fw"></i></span>
+                            <input id="blog-title" type="text" class="am-form-field" placeholder="请输入文章标题">
+                        </div>
+                    </div>
+                    <div class="am-g am-margin">
+                        <div class="am-u-md-2 am-text-right am-text-middle" style="line-height: 38px;">文章标签:</div>
+                        <div class="am-input-group am-input-group-primary am-u-md-8 am-u-end"
+                             data-am-popover="{content:'输入标签名字后按Enter键进行确认', trigger:'hover focus'}">
+                            <span class="am-input-group-label"><i class="am-icon-tags am-icon-fw"></i></span>
+                            <input type="text" id="post-tags" class="am-form-field" value="" placeholder="可留空不设置">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="am-popup" id="meta-set">
+        <div class="am-popup-inner">
+            <div class="am-popup-hd">
+                <h4 class="am-popup-title">...</h4>
+                <span data-am-modal-close class="am-close">&times;</span>
+            </div>
+            <div class="am-popup-bd" style="background: #fff;">
+                <div id="meta-image-div">
+                    <div class="am-input-group am-input-group-primary">
+                        <span class="am-input-group-label"><i class="am-icon-photo am-icon-fw"></i></span>
+                        <input id="meta-image" type="url" class="am-form-field" placeholder="仅可设置图片海报URL">
+                    </div>
+                    <div class="am-padding am-text-center">
+                        <a class="am-btn am-btn-success am-radius meta-set-done"><i class="am-icon-check"></i> 确定</a>
+                    </div>
+                </div>
+                <div id="meta-album-div">
+                    <table class="am-table am-table-bordered am-table-radius am-table-centered">
+                        <tr>
+                            <td class="am-text-middle tb-input">
+                                <div class="am-input-group am-input-group-primary am-margin-vertical">
+                                    <span class="am-input-group-label"><i class="am-icon-photo am-icon-fw"></i></span>
+                                    <input type="url" class="am-form-field" placeholder="图片URL">
+                                </div>
+                                <div class="am-input-group am-input-group-primary am-margin-vertical">
+                                    <span class="am-input-group-label"><i class="am-icon-edit am-icon-fw"></i></span>
+                                    <input type="text" class="am-form-field" placeholder="图片标题">
+                                </div>
+                            </td>
+                            <td class="am-text-middle"><a class="am-btn am-btn-warning am-btn-xs del-album-item">
+                                <i class="am-icon-trash-o"></i>
+                                删除
+                            </a></td>
+                        </tr>
+                    </table>
+                    <div class="am-padding am-text-center">
+                        <a id="add-album-item" class="am-btn am-btn-primary am-radius am-margin-horizontal"><i
+                                class="am-icon-plus"></i> 增加</a>
+                        <a class="am-btn am-btn-success am-radius am-margin-horizontal meta-set-done"><i
+                                class="am-icon-check"></i> 确定</a>
+                    </div>
+                </div>
+                <div id="meta-music-div">
+                    <div class="am-input-group am-input-group-primary am-margin-vertical">
+                        <span class="am-input-group-label"><i class="am-icon-photo am-icon-fw"></i></span>
+                        <input id="music-image" type="url" class="am-form-field" placeholder="海报图片URL">
+                    </div>
+                    <div class="am-input-group am-input-group-primary am-margin-vertical">
+                        <span class="am-input-group-label"><i class="am-icon-music am-icon-fw"></i></span>
+                        <input id="music-file" type="url" class="am-form-field" placeholder="音频媒体URL">
+                    </div>
+                    <div class="am-padding am-text-center">
+                        <a class="am-btn am-btn-success am-radius meta-set-done"><i class="am-icon-check"></i> 确定</a>
+                    </div>
+                </div>
+                <div id="meta-video-div">
+                    <div class="am-input-group am-input-group-primary am-margin-vertical">
+                        <span class="am-input-group-label"><i class="am-icon-photo am-icon-fw"></i></span>
+                        <input id="video-image" type="url" class="am-form-field" placeholder="海报图片URL,可留空">
+                    </div>
+                    <div class="am-input-group am-input-group-primary am-margin-vertical">
+                        <span class="am-input-group-label"><i class="am-icon-video-camera am-icon-fw"></i></span>
+                        <input id="video-file" type="url" class="am-form-field" placeholder="视频媒体URL">
+                    </div>
+                    <div class="am-padding am-text-center">
+                        <a class="am-btn am-btn-success am-radius meta-set-done"><i class="am-icon-check"></i> 确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="am-g">
+        <form>
+            <textarea id="edit" name="content">
+                {% if edit_id %}
+                    {{ post_query["content"] | safe }}
+                {% endif %}
+            </textarea>
+        </form>
+    </div>
+    <div class="am-modal am-modal-alert" tabindex="-1" id="error-alert">
+        <div class="am-modal-dialog">
+            <div class="am-modal-hd">请输入文章标题</div>
+            <div class="am-modal-bd"></div>
+            <div class="am-modal-footer">
+                <span class="am-modal-btn">确定</span>
+            </div>
+        </div>
+    </div>
+    <div id="meta-load-tmp" style="display: none;">
+        {% if edit_id %}
+            {% if post_query['post_meta'] %}
+                {{ post_query["post_meta"] | safe }}
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
+{% block bodyjs %}
+    <script src="https://cdn.staticfile.org/moment.js/2.18.1/moment-with-locales.min.js"></script>
+    <script src="/static/datetimepicker/amazeui.datetimepicker-se.min.js"></script>
+    <script src="/static/tagsinput/amazeui.tagsinput.min.js"></script>
+    <script src="https://cdn.bootcss.com/typeahead.js/0.11.1/typeahead.bundle.js"></script>
+
+    <!-- Include external JS libs. -->
+    <script src="https://cdn.bootcss.com/codemirror/5.28.0/codemirror.min.js"></script>
+    <script src="https://cdn.bootcss.com/codemirror/5.28.0/mode/xml/xml.min.js"></script>
+
+    <!-- Include Editor JS files. -->
+    <script src="https://cdn.bootcss.com/froala-editor/2.6.4/js/froala_editor.pkgd.min.js"></script>
+    <script src="https://cdn.bootcss.com/froala-editor/2.6.4/js/languages/zh_cn.js"></script>
+    <script>
+        var edit_id = null;
+        var post_meta = null;
+        $(function () {
+            $('#post-datetime-picker').datetimepicker({
+                maxDate: moment()
+            });
+        });
+
+        var edit_tags = {{ tags | safe }};
+        var edit_tags = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.whitespace,
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: edit_tags
+        });
+
+        $(function () {
+            $('#post-tags').tagsinput({
+                trimValue: true,
+                typeaheadjs: {
+                    name: 'edit_tags',
+                    source: edit_tags
+                }
+            });
+        });
+
+        $.FroalaEditor.DefineIcon('publish', {NAME: 'send'});
+        $.FroalaEditor.RegisterCommand('publish', {
+            title: '发布文章',
+            focus: false,
+            undo: false,
+            showOnMobile: true,
+            refreshAfterCallback: false,
+            callback: function () {
+                sendBlog('published');
+            }
+        });
+
+        $.FroalaEditor.DefineIcon('draft', {NAME: 'download'});
+        $.FroalaEditor.RegisterCommand('draft', {
+            title: '存为草稿',
+            focus: false,
+            undo: false,
+            showOnMobile: true,
+            refreshAfterCallback: false,
+            callback: function () {
+                sendBlog('draft');
+            }
+        });
+
+        $.FroalaEditor.DefineIcon('insertabstract', {NAME: 'ellipsis-h'});
+        $.FroalaEditor.RegisterCommand('insertabstract', {
+            title: '插入摘要分隔标签',
+            focus: true,
+            undo: true,
+            refreshAfterCallback: true,
+            callback: function () {
+                this.html.insert('<p><del>这是摘要分隔标签,不会在实际内容中显示</del></p>');
+            }
+        });
+
+        $(function () {
+            var myToolbarButtons = ['fullscreen', 'publish', 'draft', '|', 'fontFamily', 'fontSize', 'color', 'bold', 'italic', 'underline', 'strikeThrough', '|', 'paragraphStyle', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', 'quote', '|', 'insertLink', 'insertImage', 'insertVideo', 'insertFile', '|', 'insertTable', 'emoticons', 'specialCharacters', 'insertHR', '|', 'insertabstract', 'html', 'clearFormatting', 'undo', 'redo'];
+            $('#edit').froalaEditor({
+                language: 'zh_cn', //编辑器语言
+                heightMin: 400, //编辑器最小高度
+                imageUploadURL: '/upload_image',    //图片上传URL
+                imageUploadParam: 'image_file',  //图片表单域名称
+                imageDefaultWidth: 0,   //图片默认宽度
+                imageMaxSize: 20 * 1024 * 1024,  //图片最大上传容量 20M
+                imageManagerDeleteURL: '/delete_image', //图片删除URL
+                imageManagerLoadURL: '/load_images',
+                imageManagerPageSize: 20,   //每页图片数
+                videoUploadURL: '/upload_video',    //视频上传URL
+                videoUploadParam: 'video_file',  //视频表单域名称
+                videoDefaultWidth: 800,   //视频默认宽度
+                videoMaxSize: 500 * 1024 * 1024, //视频最大上传容量500M
+                fileUploadURL: '/upload_file',  //文件上传URL
+                fileUploadParam: 'the_file',  //文件表单域名称
+                fileMaxSize: 100 * 1024 * 1024,  //文件最大上传容量100M
+                toolbarButtons: myToolbarButtons,
+                toolbarButtonsMD: myToolbarButtons,
+                toolbarButtonsSM: myToolbarButtons,
+                toolbarButtonsXS: myToolbarButtons,
+            })
+        });
+
+        $("input[name='viewtypes']").change(function () {
+            var type_selected = $("input[name='viewtypes']:checked").val();
+            if (type_selected == 'encrypt') {
+                $('#view-pwd-input').show();
+            } else {
+                $('#view-pwd-input').hide();
+            }
+        });
+
+        $("input[name='posttypes']").change(function () {
+            get_meta();
+        });
+
+        $('.meta-set-done').click(function () {
+            $('#meta-set').modal('close');
+        });
+
+        $(document).delegate(".del-album-item", "click", function () {
+            $(this).parents('tr').remove();
+        });
+
+        $('#add-album-item').click(function () {
+            var item_str = '<tr><td class="am-text-middle tb-input"><div class="am-input-group am-input-group-primary am-margin-vertical"><span class="am-input-group-label"><i class="am-icon-photo am-icon-fw"></i></span><input type="url" class="am-form-field" placeholder="图片URL"></div><div class="am-input-group am-input-group-primary am-margin-vertical"><span class="am-input-group-label"><i class="am-icon-edit am-icon-fw"></i></span><input type="text" class="am-form-field" placeholder="图片标题"></div></td><td class="am-text-middle"><a class="am-btn am-btn-warning am-btn-xs del-album-item"><i class="am-icon-trash-o"></i> 删除</a></td></tr>';
+            $('#meta-album-div table').append(item_str);
+        });
+
+        $('#meta-set').on('open.modal.amui', function () {
+            $('#meta-image-div').css('display', 'none');
+            $('#meta-album-div').css('display', 'none');
+            $('#meta-music-div').css('display', 'none');
+            $('#meta-video-div').css('display', 'none');
+            var the_post_type = $("input[name='posttypes']:checked").val();
+            switch (the_post_type) {
+                case 'article': {
+                    $('#meta-image-div').css('display', 'block');
+                    $('.am-popup-title').text('设置普通文章的头部海报');
+                }
+                    break;
+                case 'code': {
+                    $('#meta-image-div').css('display', 'block');
+                    $('.am-popup-title').text('设置代码文章的头部海报');
+                }
+                    break;
+                case 'photo': {
+                    $('#meta-image-div').css('display', 'block');
+                    $('.am-popup-title').text('设置照片文章的海报照片');
+                }
+                    break;
+                case 'album': {
+                    $('#meta-album-div').css('display', 'block');
+                    $('.am-popup-title').text('设置图集文章的图片集');
+                }
+                    break;
+                case 'music': {
+                    $('#meta-music-div').css('display', 'block');
+                    $('.am-popup-title').text('设置音乐文章的音频媒体与头部海报');
+                }
+                    break;
+                case 'video': {
+                    $('#meta-video-div').css('display', 'block');
+                    $('.am-popup-title').text('设置视频文章的视频媒体');
+                }
+                    break;
+            }
+        });
+
+        $('#meta-set').on('close.modal.amui', function () {
+            get_meta();
+        });
+
+        function get_meta() {
+            post_meta = null;
+            var the_post_type = $("input[name='posttypes']:checked").val();
+            switch (the_post_type) {
+                case 'article': {
+                    var meta_image_link = $('#meta-image').val().trim();
+                    if (meta_image_link) {
+                        post_meta = '<div class="content-meta"><img class="am-img-responsive am-padding-xs" src="';
+                        post_meta += meta_image_link;
+                        post_meta += '" /></div>';
+                        $('#meta-set-info').text('已设置普通文章的头部海报');
+                    } else {
+                        $('#meta-set-info').text('当前无设置！');
+                    }
+                }
+                    break;
+                case 'code': {
+                    var meta_image_link = $('#meta-image').val().trim();
+                    if (meta_image_link) {
+                        post_meta = '<div class="content-meta"><img class="am-img-responsive am-padding-xs" src="';
+                        post_meta += meta_image_link;
+                        post_meta += '" /></div>';
+                        $('#meta-set-info').text('已设置代码文章的头部海报');
+                    } else {
+                        $('#meta-set-info').text('当前无设置！');
+                    }
+                }
+                    break;
+                case 'photo': {
+                    var meta_image_link = $('#meta-image').val().trim();
+                    if (meta_image_link) {
+                        post_meta = '<div class="am-padding-xs content-meta"><div data-am-widget="gallery" class="am-gallery am-gallery-default" data-am-gallery="{pureview:true}"><div class="am-gallery-item"><a href="';
+                        post_meta += meta_image_link;
+                        post_meta += '"><img src="';
+                        post_meta += meta_image_link;
+                        post_meta += '" /></a></div></div></div>';
+                        $('#meta-set-info').text('已设置照片文章的海报照片');
+                    } else {
+                        $('#meta-set-info').text('当前无设置！');
+                    }
+                }
+                    break;
+                case 'album': {
+                    var photo_link = [];
+                    var photo_title = [];
+                    var has_error = false;
+                    $('#meta-album-div td.tb-input').each(function () {
+                        var item_photo_link = $(this).find("input[type='url']").val().trim();
+                        var item_photo_title = $(this).find("input[type='text']").val().trim();
+                        if (item_photo_link) {
+                            if (item_photo_title) {
+                                photo_link.push(item_photo_link);
+                                photo_title.push(item_photo_title);
+                            } else {
+                                has_error = true;
+                                setTimeout(function () {
+                                    alert("请注意：每张图册照片均需要设置标题！");
+                                    $('#meta-set').modal()
+                                }, 100);
+                                return;
+                            }
+                        }
+                    });
+                    if (has_error) {
+                        $('#meta-set-info').text('当前无设置！');
+                    } else {
+                        var item_count = photo_link.length;
+                        post_meta = '<div class="am-padding-xs content-meta"><div data-am-widget="slider" class="am-slider am-slider-c3" data-am-slider=\'{&quot;controlNav&quot;:false}\'><ul class="am-slides">';
+                        for (var i = 0; i < item_count; i++) {
+                            post_meta += '<li><img src="';
+                            post_meta += photo_link[i];
+                            post_meta += '"><div class="am-slider-desc"><div class="am-slider-counter"><span class="am-active">';
+                            post_meta += i + 1;
+                            post_meta += '</span>/';
+                            post_meta += item_count;
+                            post_meta += '</div><span class="item-title">';
+                            post_meta += photo_title[i];
+                            post_meta += '</span></div></li>';
+                        }
+                        post_meta += '</ul></div></div>';
+                        $('#meta-set-info').text('已设置图集文章的图片集');
+                    }
+                }
+                    break;
+                case 'music': {
+                    var music_image_link = $('#music-image').val().trim();
+                    var music_file_link = $('#music-file').val().trim();
+                    if (music_image_link && music_file_link) {
+                        post_meta = '<div class="am-padding-xs content-meta"><img class="am-img-responsive" src="';
+                        post_meta += music_image_link;
+                        post_meta += '"/><div><audio src="';
+                        post_meta += music_file_link;
+                        post_meta += '" type="audio/mp3" preload="auto" controls style="max-width:100%;" class="mejs__player" data-mejsoptions=\'{"pluginPath": "https://cdn.bootcss.com/mediaelement/4.2.3/","stretching":"responsive"}\'></audio></div></div>';
+                        $('#meta-set-info').text('已设置音乐文章的音频媒体与头部海报');
+                    } else {
+                        $('#meta-set-info').text('当前无设置！');
+                    }
+                }
+                    break;
+                case 'video': {
+                    var video_image_link = $('#video-image').val().trim();
+                    var video_file_link = $('#video-file').val().trim();
+                    if (video_file_link) {
+                        post_meta = '<div class="am-padding-xs content-meta"><div><video src="';
+                        post_meta += video_file_link;
+                        post_meta += '" poster="';
+                        if (video_image_link) {
+                            post_meta += video_image_link;
+                        } else {
+                            post_meta += video_file_link.substring(0, video_file_link.lastIndexOf('.'));
+                            post_meta += '.jpg';
+                        }
+                        post_meta += '" type="video/mp4" controls="controls" preload="auto" class="mejs__player" data-mejsoptions=\'{"pluginPath": "https://cdn.bootcss.com/mediaelement/4.2.3/","stretching":"responsive"}\'></video></div></div>';
+                        $('#meta-set-info').text('已设置视频文章的视频媒体');
+                    } else {
+                        $('#meta-set-info').text('当前无设置！');
+                    }
+                }
+                    break;
+            }
+        }
+
+        function sendBlog(handle_type) {
+            get_meta();
+            var blog_title = $("#blog-title").val().trim();
+            if (!blog_title) {
+                $('#error-alert .am-modal-hd').html('请输入文章标题');
+                $('#error-alert').modal();
+                return;
+            }
+            var blog_content = $('#edit').froalaEditor('html.get').trim();
+            if (!blog_content) {
+                $('#error-alert .am-modal-hd').html('请输入一些文章内容');
+                $('#error-alert').modal();
+                return;
+            }
+            var sendData = {};
+            sendData.title = blog_title;
+            sendData.content = blog_content;
+            sendData.posttype = $("input[name='posttypes']:checked").val();
+            var view_type = $("input[name='viewtypes']:checked").val();
+            sendData.viewtype = view_type;
+            if (view_type == 'encrypt') {
+                var view_pwd = $("#view-pwd").val().trim();
+                if (!view_pwd) {
+                    $('#error-alert .am-modal-hd').html('请输入文章查看密码');
+                    $('#error-alert').modal();
+                    return;
+                } else {
+                    sendData.viewpwd = view_pwd;
+                }
+            }
+            var post_datetime = $("#post-datetime-picker").val().trim();
+            if (post_datetime) {
+                sendData.datetime = post_datetime;
+            }
+            var post_tags = $('#post-tags').val().trim();
+            if (post_tags) {
+                sendData.tags = post_tags;
+            }
+            sendData.status = handle_type;
+            sendData.postmeta = post_meta;
+            $.ajax({
+                method: "POST",
+                {% if edit_id %}
+                    url: "/manage/edit/{{ edit_id }}",
+                {% else %}
+                    url: "/manage/edit/new",
+                {% endif %}
+
+                data: sendData
+            }).done(function (data) {
+                window.location.href = data;
+            });
+        }
+    </script>
+    {% if edit_id %}
+        <script>
+            edit_id = '{{ edit_id }}';
+            $("input[name='posttypes'][value='{{post_query['post_type']}}']").attr("checked", "checked");
+            $("input[name='viewtypes'][value='{{post_query['view_type']}}']").attr("checked", "checked");
+            {% if post_query['view_type']=='encrypt' %}
+                $('#view-pwd-input').show();
+                $("#view-pwd").val('{{ post_query["view_passwd"] }}');
+            {% endif %}
+            $("#post-datetime-picker").val('{{ post_query["post_time"] }}');
+            $("#blog-title").val('{{ post_query["title"] }}');
+            {% if post_query['tags'] %}
+                var input_tags = new Array();
+                {% for tag in post_query['tags'] %}
+                    input_tags.push('{{ tag["name"] }}');
+                {% endfor %}
+                $('#post-tags').val(input_tags.join(','));
+            {% endif %}
+            {% if post_query['post_meta'] %}
+                {% if post_query['post_type'] =='article' %}
+                    var load_meta_image = $('#meta-load-tmp img').attr('src');
+                    $('#meta-image').val(load_meta_image);
+                    $('#meta-set-info').text('已设置普通文章的头部海报');
+                {% elif post_query['post_type'] =='code' %}
+                    var load_meta_image = $('#meta-load-tmp img').attr('src');
+                    $('#meta-image').val(load_meta_image);
+                    $('#meta-set-info').text('已设置代码文章的头部海报');
+                {% elif post_query['post_type'] =='photo' %}
+                    var load_meta_image = $('#meta-load-tmp img').attr('src');
+                    $('#meta-image').val(load_meta_image);
+                    $('#meta-set-info').text('已设置照片文章的海报照片');
+                {% elif post_query['post_type'] =='album' %}
+                    $('#meta-album-div table').html('');
+                    $('#meta-load-tmp li').each(function () {
+                        var load_album_item_link = $(this).find('img').attr('src');
+                        var load_album_item_title = $(this).find('.item-title').text();
+                        var load_item_str = '<tr><td class="am-text-middle tb-input"><div class="am-input-group am-input-group-primary am-margin-vertical"><span class="am-input-group-label"><i class="am-icon-photo am-icon-fw"></i></span><input type="url" value="';
+                        load_item_str += load_album_item_link;
+                        load_item_str += '" class="am-form-field" placeholder="图片URL"></div><div class="am-input-group am-input-group-primary am-margin-vertical"><span class="am-input-group-label"><i class="am-icon-edit am-icon-fw"></i></span><input type="text" value="';
+                        load_item_str += load_album_item_title;
+                        load_item_str += '" class="am-form-field" placeholder="图片标题"></div></td><td class="am-text-middle"><a class="am-btn am-btn-warning am-btn-xs del-album-item"><i class="am-icon-trash-o"></i> 删除</a></td></tr>';
+                        $('#meta-album-div table').append(load_item_str);
+                    });
+                    $('#meta-set-info').text('已设置图集文章的图片集');
+                {% elif post_query['post_type'] =='music' %}
+                    var load_music_image = $('#meta-load-tmp img').attr('src');
+                    var load_music_file = $('#meta-load-tmp audio').attr('src');
+                    $('#music-image').val(load_music_image);
+                    $('#music-file').val(load_music_file);
+                    $('#meta-set-info').text('已设置音乐文章的音频媒体与头部海报');
+                {% elif post_query['post_type'] =='video' %}
+                    var load_video_image = $('#meta-load-tmp video').attr('poster');
+                    var load_video_file = $('#meta-load-tmp video').attr('src');
+                    $('#video-image').val(load_video_image);
+                    $('#video-file').val(load_video_file);
+                    $('#meta-set-info').text('已设置视频文章的视频媒体');
+                {% endif %}
+            {% endif %}
+        </script>
+    {% endif %}
+{% endblock %}

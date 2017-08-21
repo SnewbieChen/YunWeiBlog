@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="no-js">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>登录博客控制后台 - YunWei Space</title>
+
+    <!-- Set render engine for 360 browser -->
+    <meta name="renderer" content="webkit">
+
+    <!-- No Baidu Siteapp-->
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="/static/app-icon72x72@2x.png">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0,minimal-ui">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="YunWei Login"/>
+    <link rel="apple-touch-icon-precomposed" href="/static/app-icon72x72@2x.png">
+
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="static/app-icon72x72@2x.png">
+    <meta name="msapplication-TileColor" content="#0e90d2">
+
+    <link href="https://cdn.staticfile.org/amazeui/2.7.2/css/amazeui.min.css" rel="stylesheet">
+    <style>
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-size: 1.4em;
+        }
+
+        .main {
+            position: relative;
+            width: 100%;
+            height: auto;
+            min-height: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .login-body {
+            position: relative;
+            height: 100vh;
+            background-color: #f2f2f2;
+        }
+
+        .login-bord {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 320px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="am-cf main">
+    <!-- content start -->
+    <div class="am-g login-body">
+        <div class="am-u-md-6 am-u-lg-3 am-u-md-centered am-u-lg-centered login-bord">
+            <h2 class="am-text-center">登录管理后台</h2>
+            <hr data-am-widget="divider" class="am-divider am-divider-dashed"/>
+            <div class="am-form">
+                <div class="am-input-group am-input-group-primary">
+                    <span class="am-input-group-label"><i class="am-icon-user am-icon-fw"></i></span>
+                    <input type="text" id="username" class="am-form-field" placeholder="用户名"/>
+                </div>
+                <br>
+                <div class="am-input-group am-input-group-primary">
+                    <span class="am-input-group-label"><i class="am-icon-lock am-icon-fw"></i></span>
+                    <input type="password" id="password" class="am-form-field" placeholder="密码"/>
+                </div>
+                <br>
+                <button id="logingo" class="am-btn am-btn-primary am-btn-block am-radius">登录</button>
+            </div>
+            <hr data-am-widget="divider" class="am-divider am-divider-dashed"/>
+            <div class="am-margin-top">
+                <p class="am-text-center">
+                    <small>©
+                        <script type="text/javascript">var d = new Date();
+                        document.write(d.getFullYear())</script>
+                        from YunWei.
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+    <!-- content end -->
+    <div class="am-modal am-modal-alert" tabindex="-1" id="error-alert">
+        <div class="am-modal-dialog">
+            <div class="am-modal-hd">请输入文章标题</div>
+            <div class="am-modal-bd"></div>
+            <div class="am-modal-footer">
+                <span class="am-modal-btn">确定</span>
+            </div>
+        </div>
+    </div>
+</div>
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script src="https://cdn.staticfile.org/jquery/2.2.4/jquery.min.js"></script>
+<!--<![endif]-->
+<!--[if lte IE 8 ]>
+<script src="https://cdn.staticfile.org/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/modernizr/2.8.3/modernizr.min.js"></script>
+<script src="https://cdn.staticfile.org/amazeui/2.7.2/js/amazeui.ie8polyfill.min.js"></script>
+<![endif]-->
+<script src="https://cdn.staticfile.org/amazeui/2.7.2/js/amazeui.min.js"></script>
+<script>
+    function do_login() {
+        var sendData = {};
+        sendData.username = $("#username").val().trim();
+        sendData.password = $("#password").val().trim();
+        if (!sendData.username) {
+            $('#error-alert .am-modal-hd').html('请输入用户名');
+            $('#error-alert').modal();
+            return;
+        }
+        if (!sendData.password) {
+            $('#error-alert .am-modal-hd').html('请输入登录密码');
+            $('#error-alert').modal();
+            return;
+        }
+        $.ajax({
+            method: "POST",
+            url: "/login",
+            data: sendData
+        }).done(function (data) {
+            if (data == 'error') {
+                $('#error-alert .am-modal-hd').html('用户名或密码错误！');
+                $('#error-alert').modal();
+            } else {
+                window.location.href = data;
+            }
+        });
+    }
+
+    $('#logingo').click(function () {
+        do_login();
+    });
+
+    $(document).keyup(function (e) {
+        var curKey = e.which;
+        if (curKey == 13) {
+            do_login();
+        }
+    });
+</script>
+</body>
+</html>

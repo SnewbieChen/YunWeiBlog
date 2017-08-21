@@ -1,0 +1,107 @@
+{% extends "view_base.html" %}
+{% block title %}文章归档{% endblock %}
+{% block style %}
+{% endblock %}
+{% block content %}
+    <div data-am-widget="tabs" class="am-tabs am-tabs-d2 view-bd">
+        <ul class="am-tabs-nav am-cf">
+            <li class="view-tab am-active"><a href="[posts-time-line]">文章日期归档</a></li>
+            <li class="view-tab"><a href="[tags-map]">标签集</a></li>
+        </ul>
+        <div class="am-tabs-bd">
+            <div posts-time-line class="am-tab-panel am-active">
+                <div class="am-padding-xs">
+                    <ul class="am-list admin-sidebar-list timeline-year" id="timeline-block">
+                        {% for year in time_line_posts.keys()|sort %}
+                            <li class="am-panel">
+                                <a data-am-collapse="{parent: '#timeline-block', target: '#{{ year }}'}">
+                                    <i class="am-icon-calendar am-margin-left-sm"></i> {{ year }}年
+                                    <i class="am-icon-angle-right am-fr am-margin-right"></i>
+                                </a>
+                                <ul class="am-list am-collapse timeline-month" id="{{ year }}">
+                                    {% for month in time_line_posts[year].keys()|sort %}
+                                        <li class="am-panel">
+                                            <a data-am-collapse="{parent: '#{{ year }}', target: '#{{ year }}-{{ month }}'}">
+                                                <i class="am-icon-clock-o am-margin-left-sm"></i> {{ month }}月
+                                                <i class="am-icon-angle-right am-fr am-margin-right"></i>
+                                            </a>
+                                            <ul class="am-list am-collapse timeline-item"
+                                                id="{{ year }}-{{ month }}">
+                                                {% for item in time_line_posts[year][month].keys()|sort %}
+                                                    <li>
+                                                        <a href="/post/{{ time_line_posts[year][month][item]["id"] }}">
+                                                            <span>{{ time_line_posts[year][month][item]["post_day"] }}日:</span>
+                                                            {% if time_line_posts[year][month][item]["post_type"] == 'article' %}
+                                                                <span class="am-icon-book am-margin-left-sm"></span>
+                                                            {% elif time_line_posts[year][month][item]["post_type"] == 'code' %}
+                                                                <span class="am-icon-code am-margin-left-sm"></span>
+                                                            {% elif time_line_posts[year][month][item]["post_type"] == 'photo' %}
+                                                                <span class="am-icon-camera am-margin-left-sm"></span>
+                                                            {% elif time_line_posts[year][month][item]["post_type"] == 'album' %}
+                                                                <span class="am-icon-photo am-margin-left-sm"></span>
+                                                            {% elif time_line_posts[year][month][item]["post_type"] == 'music' %}
+                                                                <span class="am-icon-music am-margin-left-sm"></span>
+                                                            {% elif time_line_posts[year][month][item]["post_type"] == 'video' %}
+                                                                <span class="am-icon-video-camera am-margin-left-sm"></span>
+                                                            {% endif %}
+                                                            {{ time_line_posts[year][month][item]["title"] }}
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div tags-map class="am-tab-panel">
+                <div id="tag-cloud"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block bodyjs %}
+    <script src="/static/tagcloud/jquery.svg3dtagcloud.min.js"></script>
+    <script>
+        $(function () {
+            var first_year = $('.timeline-year').find('ul').first();
+            var first_month = first_year.find('ul').first();
+            first_year.addClass('am-in');
+            first_month.addClass('am-in');
+            $('.am-in').each(function () {
+                var the_icon = $(this).parent('li').find('i.am-fr');
+                the_icon.removeClass('am-icon-angle-right');
+                the_icon.addClass('am-icon-angle-down');
+            });
+        });
+
+        $('[data-am-collapse]').click(function () {
+            the_i = $(this).find('i.am-fr');
+            if (the_i.hasClass('am-icon-angle-right')) {
+                the_i.removeClass('am-icon-angle-right');
+                the_i.addClass('am-icon-angle-down');
+            } else if (the_i.hasClass('am-icon-angle-down')) {
+                the_i.removeClass('am-icon-angle-down');
+                the_i.addClass('am-icon-angle-right');
+            }
+        });
+
+        var tags = [
+            {% for tag_name in tag_map %}
+                {label: '{{ tag_name }}', url: '/tag/{{ tag_name }}', target: '_blank'},
+            {% endfor %}
+        ];
+        $('#tag-cloud').svg3DTagCloud({
+            entries: tags,
+            width: '100%',
+            bgDraw: false,
+            fontColor: '#000',
+            fontSize: '1.4em',
+            fontWeight: 'bolder',
+            speed: 0.5
+        });
+    </script>
+{% endblock %}

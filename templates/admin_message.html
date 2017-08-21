@@ -1,0 +1,145 @@
+{% extends "admin_base.html" %}
+{% block title %}留言列表{% endblock %}
+{% block style %}
+{% endblock %}
+{% block content %}
+    <div class="am-scrollable-horizontal">
+        <table class="am-table am-table-bordered am-table-radius am-table-striped am-table-hover am-table-centered">
+            <thead>
+            <tr>
+                <th class="am-text-nowrap">序号</th>
+                <th class="am-text-nowrap">留言者</th>
+                <th class="am-text-nowrap">留言时间</th>
+                <th class="am-text-nowrap">留言内容</th>
+                <th class="am-text-nowrap">回复内容</th>
+                <th class="am-text-nowrap" style="min-width: 210px;">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for message in all_messages %}
+                <tr>
+                    <td class="am-text-middle am-text-nowrap list-num">{{ loop.index }}</td>
+                    <td class="am-text-middle am-text-nowrap">
+                        <span data-am-popover="{content: 'Email: {{ message.author_email }}<br>IP: {{ message.author_ip }}', trigger: 'hover focus'}">
+                            {{ message.author_name }}
+                        </span>
+                    </td>
+                    <td class="am-text-middle am-text-nowrap">{{ message.post_time }}</td>
+                    <td class="am-text-middle">{{ message.message }}</td>
+                    <td class="am-text-middle reply-content">{{ message.reply or '' }}</td>
+                    <td class="am-text-middle am-text-nowrap">
+                        <div class="am-btn-toolbar am-inline-block">
+                            <div class="am-btn-group am-btn-group-xs">
+                                {% if not message.message_check %}
+                                    <a class="am-btn am-btn-success am-btn-xs"
+                                       onclick="check_message($(this),{{ message.id }})">
+                                        <span class="am-icon-check"> 审阅</span>
+                                    </a>
+                                {% endif %}
+                                <a class="am-btn am-btn-primary am-btn-xs"
+                                   onclick="reply_message($(this),{{ message.id }})">
+                                    <span class="am-icon-pencil-square-o"> 回复</span>
+                                </a>
+                                <a class="am-btn am-btn-danger am-btn-xs"
+                                   onclick="delete_message($(this),'{{ message.id }}')">
+                                    <span class="am-icon-trash-o"> 删除</span>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="am-modal am-modal-no-btn" tabindex="-1" id="reply-input-bd">
+        <div class="am-modal-dialog comment-radius">
+            <div class="am-modal-hd">回复留言
+                <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+            </div>
+            <div class="am-modal-bd">
+                <input id="reply-message-id" type="hidden" value="">
+                <div class="am-g">
+                    <textarea class="comment-textarea" rows="7" id="reply-message-content"></textarea>
+                </div>
+                <div class="am-g am-padding-sm">
+                    <button type="button" id="cancel-reply"
+                            class="am-btn am-btn-danger am-btn-xs am-radius am-margin-horizontal">取消
+                    </button>
+                    <button type="button" id="do-reply"
+                            class="am-btn am-btn-success am-btn-xs am-radius am-margin-horizontal">确定
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block bodyjs %}
+    <script>
+        var the_reply_item = null;
+
+        function check_message(e, message_id) {
+            $.ajax({
+                method: "POST",
+                url: "/manage/message",
+                data: {event: 'check', message_id: message_id}
+            }).done(function (data) {
+                if (data == 'ok') {
+                    e.remove();
+                } else if (data == 'error') {
+                    alert('出错了！请检查网站后台错误。');
+                }
+            });
+        }
+
+        function reply_message(e, message_id) {
+            the_reply_item = e.parents('tr').children(".reply-content");
+            $('#reply-message-id').val(message_id);
+            $('#reply-message-content').val('');
+            $('#reply-input-bd').modal({closeViaDimmer: false});
+        }
+
+        $('#cancel-reply').click(function () {
+            $('#reply-input-bd').modal('close');
+        });
+
+        $('#do-reply').click(function () {
+            var message_id = $("#reply-message-id").val().trim();
+            var message_content = $("#reply-message-content").val().trim();
+            if (message_id && message_content) {
+                $('#reply-input-bd').modal('close');
+                $.ajax({
+                    method: "POST",
+                    url: "/manage/message",
+                    data: {event: 'reply', message_id: message_id, message_content: message_content}
+                }).done(function (data) {
+                    if (data == 'ok') {
+                        the_reply_item.text(message_content);
+                    } else if (data == 'error') {
+                        alert('出错了！请检查网站后台错误。');
+                    }
+                });
+            } else {
+                alert('未输入评论内容！');
+            }
+        });
+
+        function delete_message(e, message_id) {
+            var list_num = e.parents('tr').children(".list-num").text();
+            var the_tr = e.parents('tr');
+            if (confirm("确定要删除序号为 " + list_num + " 的这条留言吗？")) {
+                $.ajax({
+                    method: "POST",
+                    url: "/manage/message",
+                    data: {event: 'delete', message_id: message_id}
+                }).done(function (data) {
+                    if (data == 'ok') {
+                        the_tr.remove();
+                    } else if (data == 'error') {
+                        alert('出错了！请检查网站后台错误。');
+                    }
+                });
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "admin_base.html" %}
+{% block title %}评论列表{% endblock %}
+{% block style %}
+{% endblock %}
+{% block content %}
+    <div class="am-scrollable-horizontal">
+        <table class="am-table am-table-bordered am-table-radius am-table-striped am-table-hover am-table-centered">
+            <thead>
+            <tr>
+                <th class="am-text-nowrap">序号</th>
+                <th class="am-text-nowrap">评论者</th>
+                <th class="am-text-nowrap">评论时间</th>
+                <th class="am-text-nowrap">评论文章</th>
+                <th class="am-text-nowrap">评论内容</th>
+                <th class="am-text-nowrap">回复内容</th>
+                <th class="am-text-nowrap" style="min-width: 210px;">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for comment in all_comments %}
+                <tr>
+                    <td class="am-text-middle am-text-nowrap list-num">{{ loop.index }}</td>
+                    <td class="am-text-middle am-text-nowrap">
+                        <span data-am-popover="{content: 'Email: {{ comment.author_email }}<br>IP: {{ comment.author_ip }}', trigger: 'hover focus'}">
+                            {{ comment.author_name }}
+                        </span>
+                    </td>
+                    <td class="am-text-middle am-text-nowrap">{{ comment.post_time }}</td>
+                    <td class="am-text-middle am-text-nowrap">
+                        <a href="/post/{{ comment.post.id }}" target="_blank">{{ comment.post.title }}</a>
+                    </td>
+                    <td class="am-text-middle">{{ comment.content }}</td>
+                    <td class="am-text-middle reply-content">{{ comment.reply or '' }}</td>
+                    <td class="am-text-middle am-text-nowrap">
+                        <div class="am-btn-toolbar am-inline-block">
+                            <div class="am-btn-group am-btn-group-xs">
+                                {% if not comment.comment_check %}
+                                    <a class="am-btn am-btn-success am-btn-xs"
+                                       onclick="check_comment($(this),{{ comment.id }})">
+                                        <span class="am-icon-check"> 审阅</span>
+                                    </a>
+                                {% endif %}
+                                <a class="am-btn am-btn-primary am-btn-xs"
+                                   onclick="reply_comment($(this),{{ comment.id }})">
+                                    <span class="am-icon-pencil-square-o"> 回复</span>
+                                </a>
+                                <a class="am-btn am-btn-danger am-btn-xs"
+                                   onclick="delete_comment($(this),'{{ comment.id }}')">
+                                    <span class="am-icon-trash-o"> 删除</span>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="am-modal am-modal-no-btn" tabindex="-1" id="reply-input-bd">
+        <div class="am-modal-dialog comment-radius">
+            <div class="am-modal-hd">回复评论
+                <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+            </div>
+            <div class="am-modal-bd">
+                <input id="reply-comment-id" type="hidden" value="">
+                <div class="am-g">
+                    <textarea class="comment-textarea" rows="7" id="reply-comment-content"></textarea>
+                </div>
+                <div class="am-g am-padding-sm">
+                    <button type="button" id="cancel-reply"
+                            class="am-btn am-btn-danger am-btn-xs am-radius am-margin-horizontal">取消
+                    </button>
+                    <button type="button" id="do-reply"
+                            class="am-btn am-btn-success am-btn-xs am-radius am-margin-horizontal">确定
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block bodyjs %}
+    <script>
+        var the_reply_item = null;
+        function check_comment(e, comment_id) {
+            $.ajax({
+                method: "POST",
+                url: "/manage/comment",
+                data: {event: 'check', comment_id: comment_id}
+            }).done(function (data) {
+                if (data == 'ok') {
+                    e.remove();
+                } else if (data == 'error') {
+                    alert('出错了！请检查网站后台错误。');
+                }
+            });
+        }
+
+        function reply_comment(e, comment_id) {
+            the_reply_item = e.parents('tr').children(".reply-content");
+            $('#reply-comment-id').val(comment_id);
+            $('#reply-comment-content').val('');
+            $('#reply-input-bd').modal({closeViaDimmer: false});
+        }
+
+        $('#cancel-reply').click(function () {
+            $('#reply-input-bd').modal('close');
+        });
+
+        $('#do-reply').click(function () {
+            var comment_id = $("#reply-comment-id").val().trim();
+            var comment_content = $("#reply-comment-content").val().trim();
+            if (comment_id && comment_content) {
+                $('#reply-input-bd').modal('close');
+                $.ajax({
+                    method: "POST",
+                    url: "/manage/comment",
+                    data: {event: 'reply', comment_id: comment_id, comment_content: comment_content}
+                }).done(function (data) {
+                    if (data == 'ok') {
+                        the_reply_item.text(comment_content);
+                    } else if (data == 'error') {
+                        alert('出错了！请检查网站后台错误。');
+                    }
+                });
+            } else {
+                alert('未输入评论内容！');
+            }
+        });
+
+        function delete_comment(e, comment_id) {
+            var list_num = e.parents('tr').children(".list-num").text();
+            var the_tr = e.parents('tr');
+            if (confirm("确定要删除序号为 " + list_num + " 的这条评论吗？")) {
+                $.ajax({
+                    method: "POST",
+                    url: "/manage/comment",
+                    data: {event: 'delete', comment_id: comment_id}
+                }).done(function (data) {
+                    if (data == 'ok') {
+                        the_tr.remove();
+                    } else if (data == 'error') {
+                        alert('出错了！请检查网站后台错误。');
+                    }
+                });
+            }
+        }
+    </script>
+{% endblock %}

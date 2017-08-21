@@ -1,0 +1,106 @@
+{% extends "admin_base.html" %}
+{% block title %}标签管理{% endblock %}
+{% block style %}
+{% endblock %}
+{% block content %}
+    <div class="am-scrollable-horizontal">
+        <table class="am-table am-table-bordered am-table-radius am-table-striped am-table-hover am-table-centered">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>标签名</th>
+                <th>文章数量</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for tag in all_tags %}
+                <tr>
+                    <td class="am-text-middle">{{ loop.index }}</td>
+                    <td class="am-text-middle"><a class="list-name" href="/tag/{{ tag.name }}"
+                                                  target="_blank">{{ tag.name }}</a></td>
+                    <td class="am-text-middle">{{ tag.posts|length }}</td>
+                    <td class="am-text-middle">
+                        <div class="am-btn-toolbar am-inline-block">
+                            <div class="am-btn-group am-btn-group-xs">
+                                <a class="am-btn am-btn-primary am-btn-xs edit-tag">
+                                    <span class="am-icon-pencil-square-o"> 修改</span>
+                                </a>
+                                <a class="am-btn am-btn-danger am-btn-xs"
+                                   onclick="delete_tag($(this),'{{ tag.name }}')">
+                                    <span class="am-icon-trash-o"> 删除</span>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="am-modal am-modal-prompt" tabindex="-1" id="edit-tag-prompt">
+        <div class="am-modal-dialog">
+            <div class="am-modal-hd">请输入新的标签名</div>
+            <div class="am-modal-bd">
+                <input type="text" class="am-modal-prompt-input">
+            </div>
+            <div class="am-modal-footer">
+                <span class="am-modal-btn" data-am-modal-cancel>取消</span>
+                <span class="am-modal-btn" data-am-modal-confirm>提交</span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block bodyjs %}
+    <script>
+        $(function () {
+            $('.edit-tag').on('click', function () {
+                $('#edit-tag-prompt').modal({
+                    relatedTarget: this,
+                    onConfirm: function (e) {
+                        var new_tag_name = e.data.trim();
+                        if (new_tag_name) {
+                            tag_link = $(this.relatedTarget).parents('tr').find(".list-name");
+                            old_tag_name = tag_link.text().trim();
+                            if (old_tag_name == new_tag_name) {
+                                alert('新的标签名与久的标签名一样，无需修改')
+                            } else {
+                                $.ajax({
+                                    method: "POST",
+                                    url: "/manage/tag",
+                                    data: {event: 'modify', old_name: old_tag_name, new_name: new_tag_name}
+                                }).done(function (data) {
+                                    if (data == 'ok') {
+                                        tag_link.text(new_tag_name);
+                                        tag_link.attr('href', '/tag/' + new_tag_name);
+                                    } else if (data == 'error') {
+                                        alert('修改出错，请检查网站后台错误。');
+                                    }
+                                });
+                            }
+                        } else {
+                            alert('你输入的是空内容！')
+                        }
+                    }
+                });
+            });
+        });
+
+        function delete_tag(e, tag_name) {
+            var the_tr = e.parents('tr');
+            if (confirm('确定要删除名称为 "' + tag_name + '" 的标签吗？')) {
+                $.ajax({
+                    method: "POST",
+                    url: "/manage/tag",
+                    data: {event: 'delete', tag_name: tag_name}
+                }).done(function (data) {
+                    if (data == 'ok') {
+                        the_tr.remove();
+                    } else if (data == 'error') {
+                        alert('删除出错，请检查网站后台错误。');
+                    }
+                });
+            }
+        }
+    </script>
+{% endblock %}

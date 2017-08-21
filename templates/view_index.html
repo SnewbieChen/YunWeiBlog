@@ -1,0 +1,202 @@
+{% extends "view_base.html" %}
+{% block title %}首页{% endblock %}
+{% block content %}
+    <section id="post-timeline" class="post-container fr-view"></section>
+    <div id="loading" class="am-text-center am-text-middle am-text-primary am-text-xl am-padding-xl">
+        <i class="am-icon-spinner am-icon-pulse"></i> 加载中...
+    </div>
+    <div class="am-modal am-modal-alert" tabindex="-1" id="error-alert">
+        <div class="am-modal-dialog">
+            <div class="am-modal-hd">请先输入本文查看密码</div>
+            <div class="am-modal-bd"></div>
+            <div class="am-modal-footer">
+                <span class="am-modal-btn">确定</span>
+            </div>
+        </div>
+    </div>
+    <div data-am-widget="gotop" class="am-gotop am-gotop-fixed ms-hide"
+         style="right: 15px;bottom: 20px; width: 50px;height: 50px;">
+        <a href="#top" title="返回顶部">
+            <i class="am-icon-btn am-icon-arrow-up am-secondary"></i>
+        </a>
+    </div>
+{% endblock %}
+
+{% block bodyjs %}
+    <script>
+        var post_id = 0;
+        $(document).ready(function () {
+            getSomePosts();
+        });
+
+        $(window).bind("scroll", debounce(checkIfShow, 250));
+
+        function debounce(func, wait) {  // 简单的防抖动函数
+            var stimeout;    // 定时器变量
+            return function () {
+                clearTimeout(stimeout);  // 每次触发scroll handler时先清除定时器
+                stimeout = setTimeout(func, wait);   // 指定 wait ms 后触发真正想进行的操作
+            }
+        }
+
+        function checkIfShow() {
+            if ($('.monitor').offset().top) {
+                var button_to_top = parseInt($(window).height()) + parseInt($(window).scrollTop());
+                var ele_to_top = parseInt($('.monitor').offset().top);
+                if (ele_to_top <= button_to_top) {
+                    getSomePosts();
+                }
+            }
+        }
+
+        function getSomePosts() {
+            $('#loading').css('display', 'block');
+            $.ajax({
+                method: "POST",
+                url: "/",
+                data: {post_id: post_id}
+            }).done(function (data) {
+                $('#loading').css('display', 'none');
+                $('.monitor').removeClass('monitor');
+                if (data.nomore) {
+                    no_more_thing();
+                } else {
+                    var is_monitor = true;
+                    for (blog in data) {
+                        var is_admin = false;
+                        if (data[blog]["post_status"]) {
+                            is_admin = true;
+                        }
+                        insertToPage(is_admin, data[blog], is_monitor);
+                        is_monitor = false;
+                    }
+                }
+            });
+        }
+
+        function insertToPage(is_admin, this_blog, is_monitor) {
+            post_id = this_blog.id;
+            var insert_str = '';
+            if (is_monitor) {
+                insert_str = '<div class="post-timeline-block am-animation-slide-bottom monitor">';
+            } else {
+                insert_str = '<div class="post-timeline-block am-animation-slide-bottom">';
+            }
+            switch (this_blog.post_type) {
+                case 'article':
+                    insert_str += '<div class="post-timeline-ico post-article"><i class="am-icon-book"></i></div><div class="post-timeline-content">';
+                    break;
+                case 'code':
+                    insert_str += '<div class="post-timeline-ico post-code"><i class="am-icon-code"></i></div><div class="post-timeline-content">';
+                    break;
+                case 'photo':
+                    insert_str += '<div class="post-timeline-ico post-photo"><i class="am-icon-camera"></i></div><div class="post-timeline-content">';
+                    break;
+                case 'album':
+                    insert_str += '<div class="post-timeline-ico post-album"><i class="am-icon-photo"></i></div><div class="post-timeline-content">';
+                    break;
+                case 'music':
+                    insert_str += '<div class="post-timeline-ico post-music"><i class="am-icon-music"></i></div><div class="post-timeline-content">';
+                    break;
+                case 'video':
+                    insert_str += '<div class="post-timeline-ico post-video"><i class="am-icon-video-camera"></i></div><div class="post-timeline-content">';
+                    break;
+            }
+            if (this_blog.post_meta) {
+                insert_str += this_blog.post_meta;
+                insert_str += '<div class="am-padding-horizontal-0 am-padding-vertical-sm content-title-meta"><h2><a class="am-link-muted" href="/post/';
+            } else {
+                insert_str += '<div class="am-padding-horizontal am-padding-vertical-sm content-title"><h2><a class="am-link-muted" href="/post/';
+
+            }
+            insert_str += this_blog.id + '">';
+            insert_str += this_blog.title;
+            insert_str += '</a></h2></div><div class="am-padding">';
+            if (is_admin) {
+                insert_str += this_blog.post_abstract;
+            } else {
+                if (this_blog.view_type == 'public') {
+                    insert_str += this_blog.post_abstract;
+                } else if (this_blog.view_type == 'encrypt') {
+                    insert_str += '<div class="am-input-group am-padding ms-pwd-padding"><span class="am-input-group-label ms-hide"><i class="am-icon-lock am-icon-fw"></i></span><input type="text" class="am-form-field" placeholder="请输入本文查看密码"><span class="am-input-group-btn"><button class="am-btn am-btn-default" type="button" onclick="check_view_pwd($(this),';
+                    insert_str += this_blog.id;
+                    insert_str += ')">确定</button></span></div>';
+                }
+            }
+            insert_str += '</div><div class="am-padding-horizontal am-padding-vertical-sm am-cf post-timeline-content-footer"><span class="am-icon-clock-o am-fl"> ';
+            insert_str += this_blog.post_time + '</span>';
+            if (this_blog.tags) {
+                insert_str += '<span class="am-icon-tags am-fl am-margin-horizontal-sm am-text-truncate ms-hide index-tags">';
+                for (tag in this_blog.tags) {
+                    insert_str += '<a class="am-link-muted" href="/tag/';
+                    insert_str += this_blog.tags[tag];
+                    insert_str += '" target="_blank">#';
+                    insert_str += this_blog.tags[tag];
+                    insert_str += '</a>';
+                }
+                insert_str += '</span>';
+            }
+            insert_str += '<span class="am-icon-comments am-fl am-margin-horizontal-sm"> ';
+            insert_str += this_blog.comments;
+            insert_str += '</span><a class="am-btn am-btn-secondary am-radius am-btn-xs am-fr" href="/post/';
+            insert_str += this_blog.id;
+            insert_str += '">阅读全文</a></div></div></div>';
+            $('#post-timeline').append(insert_str);
+            if (this_blog.post_type == 'album') {
+                $('.am-slider-c3').addClass('am-slider-manual');
+                $(function () {
+                    $('.am-slider-manual').flexslider();
+                });
+            }
+
+            if (this_blog.post_type == 'music' || this_blog.post_type == 'video') {
+                $('.post-timeline-block:last').find('.mejs__player').mediaelementplayer({
+                    pluginPath: "https://cdn.bootcss.com/mediaelement/4.2.3/",
+                    stretching: "responsive"
+                });
+            }
+            $('.post-timeline-block:last').find('.fr-video').each(function () {
+                var video_link = $(this).find('video').attr('src');
+                var video_poster = video_link.substring(0, video_link.lastIndexOf('.')) + '.jpg';
+                var video_p = $(this).parent('p');
+                $(this).remove();
+                var insert_str = '<div><video src="';
+                insert_str += video_link;
+                insert_str += '" poster="';
+                insert_str += video_poster;
+                insert_str += '" type="video/mp4" controls="controls" preload="auto" data-mejsoptions=\'{"pluginPath": "https://cdn.bootcss.com/mediaelement/4.2.3/","stretching":"responsive"}\'></video></div>';
+                video_p.append(insert_str);
+                video_p.find('video').mediaelementplayer({
+                    pluginPath: "https://cdn.bootcss.com/mediaelement/4.2.3/",
+                    stretching: "responsive"
+                });
+            });
+        }
+
+        function check_view_pwd(el, view_id) {
+            var input_view_pwd = el.parents('div').find('input').val().trim();
+            if (input_view_pwd) {
+                $.ajax({
+                    method: "POST",
+                    url: "/check_view_pwd",
+                    data: {post_id: view_id, view_pwd: input_view_pwd}
+                }).done(function (data) {
+                    if (data == "error") {
+                        $('#error-alert .am-modal-hd').html('密码错误！');
+                        $('#error-alert').modal();
+                    } else {
+                        window.location.href = data;
+                    }
+                });
+            } else {
+                $('#error-alert .am-modal-hd').html('请先输入本文查看密码');
+                $('#error-alert').modal();
+            }
+        }
+
+        function no_more_thing() {
+            var no_more_thing_str = '<div id="no-more" class="am-kai am-text-center am-text-middle am-text-warning am-padding-top-xl"><p>------------ ^_^ 这是我的底线 ^_^ ------------</p><p>No more thing.</p></div>';
+            $('#loading').after(no_more_thing_str);
+        }
+    </script>
+{% endblock %}
