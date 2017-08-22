@@ -126,7 +126,8 @@
                     the_result = eval('(' + data + ')');
                     if (the_result.event == 'ok') {
                         $('.all-comment-count').text(parseInt($('.all-comment-count').text()) + 1);
-                        var lou_num = parseInt($('.comment-list-num:first').text()) + 1;
+                        var lou_text = $('.comment-list-num:first').text();
+                        var lou_num = parseInt(lou_text ? lou_text : 0) + 1;
                         $('#author_name').val('');
                         $('#author_email').val('');
                         $('#comment-content').val('');
