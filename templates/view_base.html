@@ -103,6 +103,12 @@
         {% block content %}{% endblock %}
     </div>
     <!-- content end -->
+    <div id="go-to-top" data-am-widget="gotop" class="am-gotop am-gotop-fixed ms-hide"
+         style="right: 15px;bottom: 30px; width: 50px;height: 50px;">
+        <a href="#top" title="返回顶部">
+            <i class="am-icon-btn am-icon-arrow-up am-secondary"></i>
+        </a>
+    </div>
 </div>
 
 <!--[if (gte IE 9)|!(IE)]><!-->
@@ -118,6 +124,26 @@
 <script src="https://cdn.bootcss.com/mediaelement/4.2.3/lang/zh-cn.min.js"></script>
 <script>
     mejs.i18n.language('zh-CN'); // Setting German language
+
+    function go_top_position() {
+        var window_width = $(window).width();
+        var main_div_width = $('div.main').width();
+        var right_position = (window_width - main_div_width) / 2;
+        if (right_position < 90) {
+            right_position = 15;
+        } else {
+            right_position -= 80;
+        }
+        $("#go-to-top").css({"right": right_position + "px"});
+    }
+
+    $(function () {
+        go_top_position();
+    });
+
+    $(window).resize(function () {
+        go_top_position();
+    });
 </script>
 {% block bodyjs %}
 {% endblock %}
