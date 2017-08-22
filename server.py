@@ -78,7 +78,7 @@ def message():
     查询留言页面路由
     '''
     if request.method == 'POST':
-        the_result = do_message(db, Message, request.form, request.remote_addr)
+        the_result = do_message(db, Message, request.form, request.headers['X-Real-Ip'])
         return the_result
     else:
         all_messages = Message.query.order_by(Message.post_time.desc()).all()
@@ -88,7 +88,7 @@ def message():
 @app.route('/comment', methods=['POST'])
 def blog_comment():
     """ 博客文章评论 """
-    the_result = do_blog_comment(db, Post, Comment, request.form, request.remote_addr)
+    the_result = do_blog_comment(db, Post, Comment, request.form, request.headers['X-Real-Ip'])
     return the_result
 
 
